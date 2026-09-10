@@ -304,6 +304,10 @@ MYSQL_VERSION=8 POSTGRES_VERSION=13.4 SQLSERVER_VERSION=2017-CU8-ubuntu GO_VERSI
 
 `goqu` is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
+## Changes from original 
+- Added support for custom joins
+- Added OUTER APPLY join support
+
 
 
 
