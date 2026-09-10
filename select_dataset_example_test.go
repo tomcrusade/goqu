@@ -968,6 +968,26 @@ func ExampleSelectDataset_CrossJoin() {
 	// SELECT * FROM "test" CROSS JOIN (SELECT * FROM "test2" WHERE ("amount" > 0)) AS "t"
 }
 
+func ExampleSelectDataset_OuterJoin() {
+	join := goqu.L("OUTER JOIN tags").As("tag")
+
+	sql, _, _ := goqu.From("test").OuterJoin(join).ToSQL()
+	fmt.Println(sql)
+
+	// Output:
+	// SELECT * FROM "test" OUTER JOIN tags AS tag
+}
+
+func ExampleSelectDataset_CustomJoin() {
+	join := goqu.L("ARRAY JOIN tags").As("tag")
+
+	sql, _, _ := goqu.From("test").CustomJoin(join).ToSQL()
+	fmt.Println(sql)
+
+	// Output:
+	// SELECT * FROM "test" ARRAY JOIN tags AS tag
+}
+
 func ExampleSelectDataset_FromSelf() {
 	sql, _, _ := goqu.From("test").FromSelf().ToSQL()
 	fmt.Println(sql)

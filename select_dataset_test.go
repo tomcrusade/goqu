@@ -625,6 +625,34 @@ func (sds *selectDatasetSuite) TestCrossJoin() {
 	)
 }
 
+func (sds *selectDatasetSuite) TestOuterJoin() {
+	bd := goqu.From("test")
+	sds.assertCases(
+		selectTestCase{
+			ds: bd.OuterJoin(goqu.L("OUTER JOIN tags").As("tag")),
+			clauses: exp.NewSelectClauses().
+				SetFrom(exp.NewColumnListExpression("test")).
+				JoinsAppend(
+					exp.NewUnConditionedJoinExpression(exp.OuterJoinType, goqu.L("OUTER JOIN tags").As("tag")),
+				),
+		},
+	)
+}
+
+func (sds *selectDatasetSuite) TestCustomJoin() {
+	bd := goqu.From("test")
+	sds.assertCases(
+		selectTestCase{
+			ds: bd.CustomJoin(goqu.L("ARRAY JOIN tags").As("tag")),
+			clauses: exp.NewSelectClauses().
+				SetFrom(exp.NewColumnListExpression("test")).
+				JoinsAppend(
+					exp.NewUnConditionedJoinExpression(exp.CustomJoinType, goqu.L("ARRAY JOIN tags").As("tag")),
+				),
+		},
+	)
+}
+
 func (sds *selectDatasetSuite) TestWhere() {
 	w := goqu.Ex{"a": 1}
 	w2 := goqu.Ex{"b": "c"}
