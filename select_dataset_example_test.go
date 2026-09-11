@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/tomcrusade/goqu/v9"
 	"github.com/tomcrusade/goqu/v9/exp"
 )
 
@@ -968,14 +967,14 @@ func ExampleSelectDataset_CrossJoin() {
 	// SELECT * FROM "test" CROSS JOIN (SELECT * FROM "test2" WHERE ("amount" > 0)) AS "t"
 }
 
-func ExampleSelectDataset_OuterJoin() {
-	join := goqu.L("OUTER JOIN tags").As("tag")
+func ExampleSelectDataset_OuterApply() {
+	join := goqu.L("OUTER APPLY tags").As("tag")
 
-	sql, _, _ := goqu.From("test").OuterJoin(join).ToSQL()
+	sql, _, _ := goqu.From("test").OuterApply(join).ToSQL()
 	fmt.Println(sql)
 
 	// Output:
-	// SELECT * FROM "test" OUTER JOIN tags AS tag
+	// SELECT * FROM "test" OUTER APPLY tags AS tag
 }
 
 func ExampleSelectDataset_CustomJoin() {

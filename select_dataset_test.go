@@ -6,7 +6,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/tomcrusade/goqu/v9"
 	"github.com/tomcrusade/goqu/v9/exp"
 	"github.com/tomcrusade/goqu/v9/internal/errors"
 	"github.com/tomcrusade/goqu/v9/internal/sb"
@@ -629,11 +628,11 @@ func (sds *selectDatasetSuite) TestOuterJoin() {
 	bd := goqu.From("test")
 	sds.assertCases(
 		selectTestCase{
-			ds: bd.OuterJoin(goqu.L("OUTER JOIN tags").As("tag")),
+			ds: bd.OuterApply(goqu.L("OUTER APPLY tags").As("tag")),
 			clauses: exp.NewSelectClauses().
 				SetFrom(exp.NewColumnListExpression("test")).
 				JoinsAppend(
-					exp.NewUnConditionedJoinExpression(exp.OuterJoinType, goqu.L("OUTER JOIN tags").As("tag")),
+					exp.NewUnConditionedJoinExpression(exp.OuterApplyType, goqu.L("OUTER APPLY tags").As("tag")),
 				),
 		},
 	)

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/tomcrusade/goqu/v9"
 	"github.com/tomcrusade/goqu/v9/exp"
 	"github.com/tomcrusade/goqu/v9/internal/errors"
 	"github.com/tomcrusade/goqu/v9/internal/sb"
@@ -216,7 +215,7 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 	opts.JoinTypeLookup = map[exp.JoinType][]byte{
 		exp.LeftJoinType:    []byte(" left join "),
 		exp.NaturalJoinType: []byte(" natural join "),
-		exp.OuterJoinType:   []byte(" outer join "),
+		exp.OuterApplyType:  []byte(" outer apply "),
 		exp.CustomJoinType:  []byte(" "),
 	}
 
@@ -226,7 +225,7 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 	cjo := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinOnCondition(exp.Ex{"a": "foo"}))
 	cju := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinUsingCondition("a"))
 	rj := exp.NewConditionedJoinExpression(exp.RightJoinType, ti, exp.NewJoinUsingCondition(exp.NewIdentifierExpression("", "", "a")))
-	oj := exp.NewUnConditionedJoinExpression(exp.OuterJoinType, goqu.L("OUTER JOIN tags").As("tag"))
+	oa := exp.NewUnConditionedJoinExpression(exp.OuterApplyType, goqu.L("OUTER APPLY tags").As("tag"))
 	cj := exp.NewUnConditionedJoinExpression(exp.CustomJoinType, goqu.L("ARRAY JOIN tags").As("tag"))
 	badJoin := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinUsingCondition())
 
@@ -260,8 +259,8 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 		},
 
 		selectTestCase{
-			clause: sc.JoinsAppend(oj),
-			sql:    `SELECT * FROM "test" OUTER JOIN tags AS "tag"`,
+			clause: sc.JoinsAppend(oa),
+			sql:    `SELECT * FROM "test" OUTER APPLY tags AS "tag"`,
 		},
 
 		selectTestCase{

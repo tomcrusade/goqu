@@ -348,9 +348,9 @@ func (sd *SelectDataset) CrossJoin(table exp.Expression) *SelectDataset {
 	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.CrossJoinType, table))
 }
 
-// Adds a outer join clause. See examples
-func (sd *SelectDataset) OuterJoin(expression exp.Expression) *SelectDataset {
-	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.OuterJoinType, expression))
+// Adds a outer apply clause. See examples
+func (sd *SelectDataset) OuterApply(expression exp.Expression) *SelectDataset {
+	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.OuterApplyType, expression))
 }
 
 // Adds a custom join clause. See examples
