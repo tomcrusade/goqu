@@ -14,8 +14,8 @@ package goqu
 import (
 	"time"
 
-	"github.com/doug-martin/goqu/v9/internal/util"
-	"github.com/doug-martin/goqu/v9/sqlgen"
+	"github.com/tomcrusade/goqu/v9/internal/util"
+	"github.com/tomcrusade/goqu/v9/sqlgen"
 )
 
 type DialectWrapper struct {
