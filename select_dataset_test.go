@@ -610,11 +610,11 @@ func (sds *selectDatasetSuite) TestCrossJoin() {
 	bd := goqu.From("test")
 	sds.assertCases(
 		selectTestCase{
-			ds: bd.CrossJoin(goqu.T("foo")),
+			ds: bd.CrossJoin(goqu.T("foo"), goqu.On(goqu.C("a").IsNull())),
 			clauses: exp.NewSelectClauses().
 				SetFrom(exp.NewColumnListExpression("test")).
 				JoinsAppend(
-					exp.NewUnConditionedJoinExpression(exp.CrossJoinType, goqu.T("foo")),
+					exp.NewConditionedJoinExpression(exp.CrossJoinType, goqu.T("foo"), goqu.On(goqu.C("a").IsNull())),
 				),
 		},
 		selectTestCase{
