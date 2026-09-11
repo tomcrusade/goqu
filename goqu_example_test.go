@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
-	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
-	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	"github.com/tomcrusade/goqu/v9"
+	_ "github.com/tomcrusade/goqu/v9/dialect/mysql"
+	_ "github.com/tomcrusade/goqu/v9/dialect/postgres"
+	_ "github.com/tomcrusade/goqu/v9/dialect/sqlite3"
 )
 
 // Creating a mysql dataset. Be sure to import the mysql adapter.
