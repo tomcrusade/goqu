@@ -970,11 +970,16 @@ func ExampleSelectDataset_CrossJoin() {
 func ExampleSelectDataset_OuterApply() {
 	join := goqu.L("OUTER APPLY tags").As("tag")
 
-	sql, _, _ := goqu.From("test").OuterApply(join).ToSQL()
+	sql, _, _ := goqu.From("test").OuterApply(
+		goqu.T("test2"),
+		goqu.On(goqu.Ex{
+			"test.fkey": goqu.I("test2.Id"),
+		}),
+	).ToSQL()
 	fmt.Println(sql)
 
 	// Output:
-	// SELECT * FROM "test" OUTER APPLY tags AS tag
+	// SELECT * FROM "test" OUTER APPLY "test2" ON ("test"."fkey" = "test2"."Id")
 }
 
 func ExampleSelectDataset_CustomJoin() {
