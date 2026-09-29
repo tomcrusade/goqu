@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/doug-martin/goqu/v9/exec"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exec"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 // Dataset for creating and/or executing SELECT SQL statements.
@@ -346,6 +346,16 @@ func (sd *SelectDataset) NaturalFullJoin(table exp.Expression) *SelectDataset {
 // Adds a CROSS JOIN clause. See examples.
 func (sd *SelectDataset) CrossJoin(table exp.Expression) *SelectDataset {
 	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.CrossJoinType, table))
+}
+
+// Adds a outer apply clause. See examples
+func (sd *SelectDataset) OuterApply(expression exp.Expression) *SelectDataset {
+	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.OuterApplyType, expression))
+}
+
+// Adds a custom join clause. See examples
+func (sd *SelectDataset) CustomJoin(expression exp.Expression) *SelectDataset {
+	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.CustomJoinType, expression))
 }
 
 // Joins this Datasets table with another

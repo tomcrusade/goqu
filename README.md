@@ -21,7 +21,7 @@ If you are upgrading from an older version please read the [Migrating Between Ve
 If using go modules.
 
 ```sh
-go get -u github.com/doug-martin/goqu/v9
+go get -u github.com/tomcrusade/goqu/v9
 ```
 
 If you are not using go modules...
@@ -29,7 +29,7 @@ If you are not using go modules...
 **NOTE** You should still be able to use this package if you are using go version `>v1.10` but, you will need to drop the version from the package. `import "github.com/doug-martin/goqu/v9` -> `import "github.com/doug-martin/goqu"`
 
 ```sh
-go get -u github.com/doug-martin/goqu
+go get -u github.com/tomcrusade/goqu
 ```
 
 ### [Migrating Between Versions](./docs/version_migration.md)
@@ -303,6 +303,10 @@ MYSQL_VERSION=8 POSTGRES_VERSION=13.4 SQLSERVER_VERSION=2017-CU8-ubuntu GO_VERSI
 ## License
 
 `goqu` is released under the [MIT License](http://www.opensource.org/licenses/MIT).
+
+## Changes from original 
+- Added support for custom joins
+- Added OUTER APPLY join support
 
 
 

@@ -1,10 +1,10 @@
 package goqu
 
 import (
-	"github.com/doug-martin/goqu/v9/exec"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exec"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 var ErrBadFromArgument = errors.New("unsupported DeleteDataset#From argument, a string or identifier expression is required")
@@ -181,6 +181,11 @@ func (dd *DeleteDataset) ClearLimit() *DeleteDataset {
 
 // Adds a RETURNING clause to the dataset if the adapter supports it.
 func (dd *DeleteDataset) Returning(returning ...interface{}) *DeleteDataset {
+	return dd.copy(dd.clauses.SetReturning(exp.NewColumnListExpression(returning...)))
+}
+
+// Adds a OUTPUT clause to the dataset if the adapter supports it.
+func (dd *DeleteDataset) Output(returning ...interface{}) *DeleteDataset {
 	return dd.copy(dd.clauses.SetReturning(exp.NewColumnListExpression(returning...)))
 }
 

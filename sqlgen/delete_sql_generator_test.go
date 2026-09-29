@@ -3,11 +3,11 @@ package sqlgen_test
 import (
 	"testing"
 
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
-	"github.com/doug-martin/goqu/v9/sqlgen"
 	"github.com/stretchr/testify/suite"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/sqlgen"
 )
 
 type (
@@ -221,6 +221,29 @@ func (dsgs *deleteSQLGeneratorSuite) TestGenerate_withReturning() {
 
 	opts.SupportsReturn = false
 	expectedErr := `goqu: dialect does not support RETURNING clause [dialect=test]`
+	dsgs.assertCases(
+		sqlgen.NewDeleteSQLGenerator("test", opts),
+		deleteTestCase{clause: dc, err: expectedErr},
+		deleteTestCase{clause: dc, err: expectedErr, isPrepared: true},
+	)
+}
+
+func (dsgs *deleteSQLGeneratorSuite) TestGenerate_withOutput() {
+	opts := sqlgen.DefaultDialectOptions()
+	opts.SupportsOutput = true
+
+	dc := exp.NewDeleteClauses().
+		SetFrom(exp.NewIdentifierExpression("", "test", "")).
+		SetOutput(exp.NewColumnListExpression("a", "b"))
+
+	dsgs.assertCases(
+		sqlgen.NewDeleteSQLGenerator("test", opts),
+		deleteTestCase{clause: dc, sql: `DELETE FROM "test" RETURNING "a", "b"`},
+		deleteTestCase{clause: dc, sql: `DELETE FROM "test" RETURNING "a", "b"`, isPrepared: true},
+	)
+
+	opts.SupportsOutput = false
+	expectedErr := `goqu: dialect does not support OUTPUT clause [dialect=test]`
 	dsgs.assertCases(
 		sqlgen.NewDeleteSQLGenerator("test", opts),
 		deleteTestCase{clause: dc, err: expectedErr},

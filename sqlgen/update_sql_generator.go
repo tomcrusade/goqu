@@ -1,9 +1,9 @@
 package sqlgen
 
 import (
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 type (
@@ -74,6 +74,8 @@ func (usg *updateSQLGenerator) Generate(b sb.SQLBuilder, clauses exp.UpdateClaus
 			}
 		case ReturningSQLFragment:
 			usg.ReturningSQL(b, clauses.Returning())
+		case OutputSQLFragment:
+			usg.OutputSQL(b, clauses.Output())
 		default:
 			b.SetError(ErrNotSupportedFragment("UPDATE", f))
 		}

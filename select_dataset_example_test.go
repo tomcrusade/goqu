@@ -8,9 +8,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/lib/pq"
+	"github.com/tomcrusade/goqu/v9/exp"
 )
 
 const schema = `
@@ -966,6 +965,26 @@ func ExampleSelectDataset_CrossJoin() {
 	// SELECT * FROM "test" CROSS JOIN "test2"
 	// SELECT * FROM "test" CROSS JOIN (SELECT * FROM "test2" WHERE ("amount" > 0))
 	// SELECT * FROM "test" CROSS JOIN (SELECT * FROM "test2" WHERE ("amount" > 0)) AS "t"
+}
+
+func ExampleSelectDataset_OuterApply() {
+	join := goqu.L("OUTER APPLY (SELECT * FROM X)").As("tag")
+
+	sql, _, _ := goqu.From("test").OuterApply(join).ToSQL()
+	fmt.Println(sql)
+
+	// Output:
+	// SELECT * FROM "test" OUTER APPLY (SELECT * FROM X) AS tag
+}
+
+func ExampleSelectDataset_CustomJoin() {
+	join := goqu.L("ARRAY JOIN tags").As("tag")
+
+	sql, _, _ := goqu.From("test").CustomJoin(join).ToSQL()
+	fmt.Println(sql)
+
+	// Output:
+	// SELECT * FROM "test" ARRAY JOIN tags AS tag
 }
 
 func ExampleSelectDataset_FromSelf() {

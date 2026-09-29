@@ -30,6 +30,10 @@ type (
 		Returning() ColumnListExpression
 		HasReturning() bool
 		SetReturning(cl ColumnListExpression) DeleteClauses
+
+		Output() ColumnListExpression
+		HasOutput() bool
+		SetOutput(cl ColumnListExpression) DeleteClauses
 	}
 	deleteClauses struct {
 		commonTables []CommonTableExpression
@@ -38,6 +42,7 @@ type (
 		order        ColumnListExpression
 		limit        interface{}
 		returning    ColumnListExpression
+		output       ColumnListExpression
 	}
 )
 
@@ -173,5 +178,19 @@ func (dc *deleteClauses) HasReturning() bool {
 func (dc *deleteClauses) SetReturning(cl ColumnListExpression) DeleteClauses {
 	ret := dc.clone()
 	ret.returning = cl
+	return ret
+}
+
+func (dc *deleteClauses) Output() ColumnListExpression {
+	return dc.output
+}
+
+func (dc *deleteClauses) HasOutput() bool {
+	return dc.output != nil && !dc.output.IsEmpty()
+}
+
+func (dc *deleteClauses) SetOutput(cl ColumnListExpression) DeleteClauses {
+	ret := dc.clone()
+	ret.output = cl
 	return ret
 }

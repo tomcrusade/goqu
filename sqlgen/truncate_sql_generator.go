@@ -3,9 +3,9 @@ package sqlgen
 import (
 	"strings"
 
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 type (

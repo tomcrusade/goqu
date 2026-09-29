@@ -4,15 +4,16 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/util"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/util"
 )
 
 type (
 	insert struct {
-		from AppendableExpression
-		cols ColumnListExpression
-		vals [][]interface{}
+		from   AppendableExpression
+		cols   ColumnListExpression
+		output ColumnListExpression
+		vals   [][]interface{}
 	}
 )
 

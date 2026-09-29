@@ -1,14 +1,15 @@
 package mysql
 
 import (
-	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9"
+	"github.com/tomcrusade/goqu/v9/exp"
 )
 
 func DialectOptions() *goqu.SQLDialectOptions {
 	opts := goqu.DefaultDialectOptions()
 
 	opts.SupportsReturn = false
+	opts.SupportsOutput = false
 	opts.SupportsOrderByOnUpdate = true
 	opts.SupportsLimitOnUpdate = true
 	opts.SupportsLimitOnDelete = true

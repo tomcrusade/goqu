@@ -16,9 +16,9 @@ Below are examples for each dialect. Notice how the dialect is imported and then
 ```go
 import (
   "fmt"
-  "github.com/doug-martin/goqu/v9"
+  "github.com/tomcrusade/goqu/v9"
   // import the dialect
-  _ "github.com/doug-martin/goqu/v9/dialect/postgres"
+  _ "github.com/tomcrusade/goqu/v9/dialect/postgres"
 )
 
 // look up the dialect
@@ -44,9 +44,9 @@ SELECT * FROM "test" WHERE "id" = 10 []
 ```go
 import (
   "fmt"
-  "github.com/doug-martin/goqu/v9"
+  "github.com/tomcrusade/goqu/v9"
   // import the dialect
-  _ "github.com/doug-martin/goqu/v9/dialect/mysql"
+  _ "github.com/tomcrusade/goqu/v9/dialect/mysql"
 )
 
 // look up the dialect
@@ -72,9 +72,9 @@ SELECT * FROM `test` WHERE `id` = 10 []
 ```go
 import (
   "fmt"
-  "github.com/doug-martin/goqu/v9"
+  "github.com/tomcrusade/goqu/v9"
   // import the dialect
-  _ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
+  _ "github.com/tomcrusade/goqu/v9/dialect/sqlite3"
 )
 
 // look up the dialect
@@ -100,9 +100,9 @@ SELECT * FROM `test` WHERE `id` = 10 []
 ```go
 import (
   "fmt"
-  "github.com/doug-martin/goqu/v9"
+  "github.com/tomcrusade/goqu/v9"
   // import the dialect
-  _ "github.com/doug-martin/goqu/v9/dialect/sqlserver"
+  _ "github.com/tomcrusade/goqu/v9/dialect/sqlserver"
 )
 
 // look up the dialect
@@ -132,8 +132,8 @@ In the example below notice that we imported the dialect and driver for side eff
 ```go
 import (
   "database/sql"
-  "github.com/doug-martin/goqu/v9"
-  _ "github.com/doug-martin/goqu/v9/dialect/postgres"
+  "github.com/tomcrusade/goqu/v9"
+  _ "github.com/tomcrusade/goqu/v9/dialect/postgres"
   _ "github.com/lib/pq"
 )
 
