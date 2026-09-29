@@ -3,9 +3,9 @@ package sqlgen
 import (
 	"strings"
 
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 type (
@@ -64,6 +64,8 @@ func (isg *insertSQLGenerator) Generate(
 			isg.InsertSQL(b, clauses)
 		case ReturningSQLFragment:
 			isg.ReturningSQL(b, clauses.Returning())
+		case OutputSQLFragment:
+			return
 		default:
 			b.SetError(ErrNotSupportedFragment("INSERT", f))
 		}
@@ -88,12 +90,12 @@ func (isg *insertSQLGenerator) InsertSQL(b sb.SQLBuilder, ic exp.InsertClauses) 
 			b.SetError(err)
 			return
 		}
-		isg.InsertExpressionSQL(b, ie)
+		isg.InsertExpressionSQL(b, ie, ic.Output())
 	case ic.HasCols() && ic.HasVals():
-		isg.insertColumnsSQL(b, ic.Cols())
+		isg.insertColumnsSQL(b, ic.Cols(), ic.Output())
 		isg.insertValuesSQL(b, ic.Vals())
 	case ic.HasCols() && ic.HasFrom():
-		isg.insertColumnsSQL(b, ic.Cols())
+		isg.insertColumnsSQL(b, ic.Cols(), ic.Output())
 		isg.insertFromSQL(b, ic.From())
 	case ic.HasFrom():
 		isg.insertFromSQL(b, ic.From())
@@ -107,14 +109,14 @@ func (isg *insertSQLGenerator) InsertSQL(b sb.SQLBuilder, ic exp.InsertClauses) 
 	isg.onConflictSQL(b, ic.OnConflict())
 }
 
-func (isg *insertSQLGenerator) InsertExpressionSQL(b sb.SQLBuilder, ie exp.InsertExpression) {
+func (isg *insertSQLGenerator) InsertExpressionSQL(b sb.SQLBuilder, ie exp.InsertExpression, outputCols exp.ColumnListExpression) {
 	switch {
 	case ie.IsInsertFrom():
 		isg.insertFromSQL(b, ie.From())
 	case ie.IsEmpty():
 		isg.defaultValuesSQL(b)
 	default:
-		isg.insertColumnsSQL(b, ie.Cols())
+		isg.insertColumnsSQL(b, ie.Cols(), outputCols)
 		isg.insertValuesSQL(b, ie.Vals())
 	}
 }
@@ -130,10 +132,22 @@ func (isg *insertSQLGenerator) insertFromSQL(b sb.SQLBuilder, ae exp.AppendableE
 }
 
 // Adds the columns list to an insert statement
-func (isg *insertSQLGenerator) insertColumnsSQL(b sb.SQLBuilder, cols exp.ColumnListExpression) {
+func (isg *insertSQLGenerator) insertColumnsSQL(b sb.SQLBuilder, cols exp.ColumnListExpression, outputCols exp.ColumnListExpression) {
 	b.WriteRunes(isg.DialectOptions().SpaceRune, isg.DialectOptions().LeftParenRune)
 	isg.ExpressionSQLGenerator().Generate(b, cols)
 	b.WriteRunes(isg.DialectOptions().RightParenRune)
+	if outputCols == nil || len(outputCols.Columns()) == 0 {
+		return
+	}
+	if !isg.DialectOptions().SupportsOutput {
+		b.SetError(ErrOutputNotSupported(isg.Dialect()))
+		return
+	}
+	if isg.DialectOptions().SupportsReturn {
+		b.SetError(ErrReturningOutputNotSupportedSimultaneously(isg.Dialect()))
+	}
+	b.Write(isg.DialectOptions().OutputFragment)
+	isg.ExpressionSQLGenerator().Generate(b, outputCols)
 }
 
 // Adds the values clause to an SQL statement

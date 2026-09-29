@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/doug-martin/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/exp"
 )
 
 type (
@@ -22,6 +22,8 @@ type (
 		SupportsLimitOnUpdate bool
 		// Set to true if the dialect supports RETURN expressions (DEFAULT=true)
 		SupportsReturn bool
+		// Set to true if the dialect supports OUTPUT expressions (DEFAULT=true)
+		SupportsOutput bool
 		// Set to true if the dialect supports Conflict Target (DEFAULT=true)
 		SupportsConflictTarget bool
 		// Set to true if the dialect supports Conflict Target (DEFAULT=true)
@@ -85,6 +87,8 @@ type (
 		DistinctFragment []byte
 		// The SQL RETURNING clause (DEFAULT=[]byte(" RETURNING "))
 		ReturningFragment []byte
+		// The SQL OUTPUT clause (DEFAULT=[]byte(" OUTPUT "))
+		OutputFragment []byte
 		// The SQL FROM clause fragment (DEFAULT=[]byte(" FROM"))
 		FromFragment []byte
 		// The SQL USING join clause fragment (DEFAULT=[]byte(" USING "))
@@ -353,6 +357,7 @@ const (
 	DeleteBeginSQLFragment
 	TruncateSQLFragment
 	WindowSQLFragment
+	OutputSQLFragment
 )
 
 //nolint:gocyclo // simple type to string conversion
@@ -415,6 +420,7 @@ func DefaultDialectOptions() *SQLDialectOptions {
 		SupportsLimitOnDelete:       false,
 		SupportsLimitOnUpdate:       false,
 		SupportsReturn:              true,
+		SupportsOutput:              false,
 		SupportsConflictUpdateWhere: true,
 		SupportsInsertIgnoreSyntax:  false,
 		SupportsConflictTarget:      true,
@@ -444,6 +450,7 @@ func DefaultDialectOptions() *SQLDialectOptions {
 		SetFragment:               []byte(" SET "),
 		DistinctFragment:          []byte("DISTINCT"),
 		ReturningFragment:         []byte(" RETURNING "),
+		OutputFragment:            []byte(" OUTPUT "),
 		FromFragment:              []byte(" FROM"),
 		UsingFragment:             []byte(" USING "),
 		OnFragment:                []byte(" ON "),
@@ -547,6 +554,8 @@ func DefaultDialectOptions() *SQLDialectOptions {
 			exp.NaturalRightJoinType: []byte(" NATURAL RIGHT JOIN "),
 			exp.NaturalFullJoinType:  []byte(" NATURAL FULL JOIN "),
 			exp.CrossJoinType:        []byte(" CROSS JOIN "),
+			exp.OuterApplyType:       []byte(" OUTER APPLY "),
+			exp.CustomJoinType:       []byte(" "),
 		},
 
 		TimeFormat: time.RFC3339Nano,
@@ -579,6 +588,7 @@ func DefaultDialectOptions() *SQLDialectOptions {
 			SourcesSQLFragment,
 			UpdateSQLFragment,
 			UpdateFromSQLFragment,
+			OutputSQLFragment,
 			WhereSQLFragment,
 			OrderSQLFragment,
 			LimitSQLFragment,
@@ -589,12 +599,14 @@ func DefaultDialectOptions() *SQLDialectOptions {
 			InsertBeingSQLFragment,
 			IntoSQLFragment,
 			InsertSQLFragment,
+			OutputSQLFragment,
 			ReturningSQLFragment,
 		},
 		DeleteSQLOrder: []SQLFragmentType{
 			CommonTableSQLFragment,
 			DeleteBeginSQLFragment,
 			FromSQLFragment,
+			OutputSQLFragment,
 			WhereSQLFragment,
 			OrderSQLFragment,
 			LimitSQLFragment,

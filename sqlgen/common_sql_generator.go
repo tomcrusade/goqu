@@ -1,9 +1,9 @@
 package sqlgen
 
 import (
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 var ErrNoUpdatedValuesProvided = errors.New("no update values provided")
@@ -20,6 +20,14 @@ func ErrReturnNotSupported(dialect string) error {
 	return errors.New("dialect does not support RETURNING clause [dialect=%s]", dialect)
 }
 
+func ErrOutputNotSupported(dialect string) error {
+	return errors.New("dialect does not support OUTPUT clause [dialect=%s]", dialect)
+}
+
+func ErrReturningOutputNotSupportedSimultaneously(dialect string) error {
+	return errors.New("dialect does not support both RETURNING and OUTPUT clause at the same time [dialect=%s]", dialect)
+}
+
 func ErrNotSupportedFragment(sqlType string, f SQLFragmentType) error {
 	return errors.New("unsupported %s SQL fragment %s", sqlType, f)
 }
@@ -30,6 +38,7 @@ type (
 		DialectOptions() *SQLDialectOptions
 		ExpressionSQLGenerator() ExpressionSQLGenerator
 		ReturningSQL(b sb.SQLBuilder, returns exp.ColumnListExpression)
+		OutputSQL(b sb.SQLBuilder, returns exp.ColumnListExpression)
 		FromSQL(b sb.SQLBuilder, from exp.ColumnListExpression)
 		SourcesSQL(b sb.SQLBuilder, from exp.ColumnListExpression)
 		WhereSQL(b sb.SQLBuilder, where exp.ExpressionList)
@@ -62,14 +71,33 @@ func (csg *commonSQLGenerator) ExpressionSQLGenerator() ExpressionSQLGenerator {
 }
 
 func (csg *commonSQLGenerator) ReturningSQL(b sb.SQLBuilder, returns exp.ColumnListExpression) {
-	if returns != nil && len(returns.Columns()) > 0 {
-		if csg.dialectOptions.SupportsReturn {
-			b.Write(csg.dialectOptions.ReturningFragment)
-			csg.esg.Generate(b, returns)
-		} else {
-			b.SetError(ErrReturnNotSupported(csg.dialect))
-		}
+	if returns == nil || len(returns.Columns()) == 0 {
+		return
 	}
+	if !csg.dialectOptions.SupportsReturn {
+		b.SetError(ErrReturnNotSupported(csg.dialect))
+		return
+	}
+	if csg.dialectOptions.SupportsOutput {
+		b.SetError(ErrReturningOutputNotSupportedSimultaneously(csg.dialect))
+	}
+	b.Write(csg.dialectOptions.ReturningFragment)
+	csg.esg.Generate(b, returns)
+}
+
+func (csg *commonSQLGenerator) OutputSQL(b sb.SQLBuilder, outputs exp.ColumnListExpression) {
+	if outputs == nil || len(outputs.Columns()) == 0 {
+		return
+	}
+	if !csg.dialectOptions.SupportsOutput {
+		b.SetError(ErrOutputNotSupported(csg.dialect))
+		return
+	}
+	if csg.dialectOptions.SupportsReturn {
+		b.SetError(ErrReturningOutputNotSupportedSimultaneously(csg.dialect))
+	}
+	b.Write(csg.dialectOptions.OutputFragment)
+	csg.esg.Generate(b, outputs)
 }
 
 // Adds the FROM clause and tables to an sql statement

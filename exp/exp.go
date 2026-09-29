@@ -3,7 +3,7 @@ package exp
 import (
 	"fmt"
 
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 // Behaviors
@@ -533,6 +533,8 @@ const (
 	NaturalRightJoinType
 	NaturalFullJoinType
 	CrossJoinType
+	OuterApplyType
+	CustomJoinType
 
 	UsingJoinCondType JoinConditionType = iota
 	OnJoinCondType
@@ -729,6 +731,10 @@ func (jt JoinType) String() string {
 		return "NaturalFullJoinType"
 	case CrossJoinType:
 		return "CrossJoinType"
+	case OuterApplyType:
+		return "OuterApplyType"
+	case CustomJoinType:
+		return "CustomJoinType"
 	}
 	return fmt.Sprintf("%d", jt)
 }

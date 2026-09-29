@@ -38,6 +38,10 @@ type (
 		Returning() ColumnListExpression
 		HasReturning() bool
 		SetReturning(cl ColumnListExpression) UpdateClauses
+
+		Output() ColumnListExpression
+		HasOutput() bool
+		SetOutput(cl ColumnListExpression) UpdateClauses
 	}
 	updateClauses struct {
 		commonTables []CommonTableExpression
@@ -48,6 +52,7 @@ type (
 		order        ColumnListExpression
 		limit        interface{}
 		returning    ColumnListExpression
+		output       ColumnListExpression
 	}
 )
 
@@ -212,5 +217,19 @@ func (uc *updateClauses) HasReturning() bool {
 func (uc *updateClauses) SetReturning(cl ColumnListExpression) UpdateClauses {
 	ret := uc.clone()
 	ret.returning = cl
+	return ret
+}
+
+func (dc *updateClauses) Output() ColumnListExpression {
+	return dc.output
+}
+
+func (dc *updateClauses) HasOutput() bool {
+	return dc.output != nil && !dc.output.IsEmpty()
+}
+
+func (dc *updateClauses) SetOutput(cl ColumnListExpression) UpdateClauses {
+	ret := dc.clone()
+	ret.output = cl
 	return ret
 }

@@ -3,12 +3,12 @@ package sqlgen_test
 import (
 	"testing"
 
-	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
-	"github.com/doug-martin/goqu/v9/sqlgen"
 	"github.com/stretchr/testify/suite"
+	"github.com/tomcrusade/goqu/v9"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/sqlgen"
 )
 
 type (
@@ -216,6 +216,8 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 	opts.JoinTypeLookup = map[exp.JoinType][]byte{
 		exp.LeftJoinType:    []byte(" left join "),
 		exp.NaturalJoinType: []byte(" natural join "),
+		exp.OuterApplyType:  []byte(" outer apply "),
+		exp.CustomJoinType:  []byte(" "),
 	}
 
 	sc := exp.NewSelectClauses().SetFrom(exp.NewColumnListExpression("test"))
@@ -224,6 +226,8 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 	cjo := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinOnCondition(exp.Ex{"a": "foo"}))
 	cju := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinUsingCondition("a"))
 	rj := exp.NewConditionedJoinExpression(exp.RightJoinType, ti, exp.NewJoinUsingCondition(exp.NewIdentifierExpression("", "", "a")))
+	oa := exp.NewUnConditionedJoinExpression(exp.OuterApplyType, ti)
+	cj := exp.NewUnConditionedJoinExpression(exp.CustomJoinType, ti)
 	badJoin := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinUsingCondition())
 
 	expectedRjError := "goqu: dialect does not support RightJoinType"
@@ -253,6 +257,16 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 			sql:        `SELECT * FROM "test" natural join "test2" left join "test2" on ("a" = ?) left join "test2" using ("a")`,
 			isPrepared: true,
 			args:       []interface{}{"foo"},
+		},
+
+		selectTestCase{
+			clause: sc.JoinsAppend(oa).JoinsAppend(cjo).JoinsAppend(cju),
+			sql:    `SELECT * FROM "test" OUTER APPLY "test2" left join "test2" on ("a" = 'foo') left join "test2" using ("a")`,
+		},
+
+		selectTestCase{
+			clause: sc.JoinsAppend(cj).JoinsAppend(cjo).JoinsAppend(cju),
+			sql:    `SELECT * FROM "test" ARRAY JOIN  "test2" left join "test2" on ("a" = 'foo') left join "test2" using ("a")`,
 		},
 
 		selectTestCase{clause: sc.JoinsAppend(rj), err: expectedRjError},

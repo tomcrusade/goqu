@@ -4,13 +4,12 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
-	"github.com/doug-martin/goqu/v9/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/mocks"
 )
 
 type (
@@ -611,16 +610,44 @@ func (sds *selectDatasetSuite) TestCrossJoin() {
 	bd := goqu.From("test")
 	sds.assertCases(
 		selectTestCase{
-			ds: bd.CrossJoin(goqu.T("foo")),
+			ds: bd.CrossJoin(goqu.T("foo"), goqu.On(goqu.C("a").IsNull())),
 			clauses: exp.NewSelectClauses().
 				SetFrom(exp.NewColumnListExpression("test")).
 				JoinsAppend(
-					exp.NewUnConditionedJoinExpression(exp.CrossJoinType, goqu.T("foo")),
+					exp.NewConditionedJoinExpression(exp.CrossJoinType, goqu.T("foo"), goqu.On(goqu.C("a").IsNull())),
 				),
 		},
 		selectTestCase{
 			ds:      bd,
 			clauses: exp.NewSelectClauses().SetFrom(exp.NewColumnListExpression("test")),
+		},
+	)
+}
+
+func (sds *selectDatasetSuite) TestOuterJoin() {
+	bd := goqu.From("test")
+	sds.assertCases(
+		selectTestCase{
+			ds: bd.OuterApply(goqu.L("OUTER APPLY tags").As("tag")),
+			clauses: exp.NewSelectClauses().
+				SetFrom(exp.NewColumnListExpression("test")).
+				JoinsAppend(
+					exp.NewUnConditionedJoinExpression(exp.OuterApplyType, goqu.L("OUTER APPLY tags").As("tag")),
+				),
+		},
+	)
+}
+
+func (sds *selectDatasetSuite) TestCustomJoin() {
+	bd := goqu.From("test")
+	sds.assertCases(
+		selectTestCase{
+			ds: bd.CustomJoin(goqu.L("ARRAY JOIN tags").As("tag")),
+			clauses: exp.NewSelectClauses().
+				SetFrom(exp.NewColumnListExpression("test")).
+				JoinsAppend(
+					exp.NewUnConditionedJoinExpression(exp.CustomJoinType, goqu.L("ARRAY JOIN tags").As("tag")),
+				),
 		},
 	)
 }

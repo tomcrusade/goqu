@@ -1,10 +1,10 @@
 package goqu
 
 import (
-	"github.com/doug-martin/goqu/v9/exec"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exec"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 type UpdateDataset struct {
@@ -184,6 +184,11 @@ func (ud *UpdateDataset) ClearLimit() *UpdateDataset {
 // Adds a RETURNING clause to the dataset if the adapter supports it. See examples.
 func (ud *UpdateDataset) Returning(returning ...interface{}) *UpdateDataset {
 	return ud.copy(ud.clauses.SetReturning(exp.NewColumnListExpression(returning...)))
+}
+
+// Adds a OUTPUT clause to the dataset if the adapter supports it See examples.
+func (id *UpdateDataset) Output(returning ...interface{}) *UpdateDataset {
+	return id.copy(id.clauses.SetOutput(exp.NewColumnListExpression(returning...)))
 }
 
 // Get any error that has been set or nil if no error has been set.

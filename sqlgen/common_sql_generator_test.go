@@ -3,10 +3,10 @@ package sqlgen_test
 import (
 	"testing"
 
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/sb"
-	"github.com/doug-martin/goqu/v9/sqlgen"
 	"github.com/stretchr/testify/suite"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/sqlgen"
 )
 
 type (
@@ -64,6 +64,11 @@ func (csgs *commonSQLGeneratorSuite) TestReturningSQL() {
 	opts2.SupportsReturn = false
 	csgs2 := sqlgen.NewCommonSQLGenerator("test", opts2)
 
+	opts3 := sqlgen.DefaultDialectOptions()
+	opts3.SupportsOutput = true
+	opts3.SupportsReturn = true
+	csgs3 := sqlgen.NewCommonSQLGenerator("test", opts3)
+
 	csgs.assertCases(
 		commonSQLTestCase{gen: returningGen(csgs1), sql: ` RETURNING "a", "b"`},
 		commonSQLTestCase{gen: returningGen(csgs1), sql: ` RETURNING "a", "b"`, isPrepared: true, args: emptyArgs},
@@ -75,7 +80,54 @@ func (csgs *commonSQLGeneratorSuite) TestReturningSQL() {
 		commonSQLTestCase{gen: returningNilExpGen(csgs1), sql: ``, isPrepared: true, args: emptyArgs},
 
 		commonSQLTestCase{gen: returningGen(csgs2), err: `goqu: dialect does not support RETURNING clause [dialect=test]`},
-		commonSQLTestCase{gen: returningGen(csgs2), err: `goqu: dialect does not support RETURNING clause [dialect=test]`},
+		commonSQLTestCase{gen: returningGen(csgs3), err: `goqu: dialect does not support both RETURNING and OUTPUT clause at the same time [dialect=test]`},
+	)
+}
+
+func (csgs *commonSQLGeneratorSuite) TestOutputSQL() {
+	outputGen := func(csgs sqlgen.CommonSQLGenerator) func(sb.SQLBuilder) {
+		return func(sb sb.SQLBuilder) {
+			csgs.OutputSQL(sb, exp.NewColumnListExpression("a", "b"))
+		}
+	}
+
+	outputNoColsGen := func(csgs sqlgen.CommonSQLGenerator) func(sb.SQLBuilder) {
+		return func(sb sb.SQLBuilder) {
+			csgs.OutputSQL(sb, exp.NewColumnListExpression())
+		}
+	}
+
+	outputNilExpGen := func(csgs sqlgen.CommonSQLGenerator) func(sb.SQLBuilder) {
+		return func(sb sb.SQLBuilder) {
+			csgs.OutputSQL(sb, nil)
+		}
+	}
+
+	opts := sqlgen.DefaultDialectOptions()
+	opts.SupportsOutput = true
+	csgs1 := sqlgen.NewCommonSQLGenerator("test", opts)
+
+	opts2 := sqlgen.DefaultDialectOptions()
+	opts2.SupportsOutput = false
+	csgs2 := sqlgen.NewCommonSQLGenerator("test", opts2)
+
+	opts3 := sqlgen.DefaultDialectOptions()
+	opts3.SupportsOutput = true
+	opts3.SupportsReturn = true
+	csgs3 := sqlgen.NewCommonSQLGenerator("test", opts3)
+
+	csgs.assertCases(
+		commonSQLTestCase{gen: outputGen(csgs1), sql: ` OUTPUT "a", "b"`},
+		commonSQLTestCase{gen: outputGen(csgs1), sql: ` OUTPUT "a", "b"`, isPrepared: true, args: emptyArgs},
+
+		commonSQLTestCase{gen: outputNoColsGen(csgs1), sql: ``},
+		commonSQLTestCase{gen: outputNoColsGen(csgs1), sql: ``, isPrepared: true, args: emptyArgs},
+
+		commonSQLTestCase{gen: outputNilExpGen(csgs1), sql: ``},
+		commonSQLTestCase{gen: outputNilExpGen(csgs1), sql: ``, isPrepared: true, args: emptyArgs},
+
+		commonSQLTestCase{gen: outputGen(csgs2), err: `goqu: dialect does not support OUTPUT clause [dialect=test]`},
+		commonSQLTestCase{gen: outputGen(csgs3), err: `goqu: dialect does not support both RETURNING and OUTPUT clause at the same time [dialect=test]`},
 	)
 }
 

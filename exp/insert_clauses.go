@@ -20,6 +20,10 @@ type (
 		HasReturning() bool
 		SetReturning(cl ColumnListExpression) InsertClauses
 
+		Output() ColumnListExpression
+		HasOutput() bool
+		SetOutput(cl ColumnListExpression) InsertClauses
+
 		From() AppendableExpression
 		HasFrom() bool
 		SetFrom(ae AppendableExpression) InsertClauses
@@ -45,6 +49,7 @@ type (
 		cols         ColumnListExpression
 		into         Expression
 		returning    ColumnListExpression
+		output       ColumnListExpression
 		alias        IdentifierExpression
 		rows         []interface{}
 		values       [][]interface{}
@@ -201,5 +206,19 @@ func (ic *insertClauses) OnConflict() ConflictExpression {
 func (ic *insertClauses) SetOnConflict(expression ConflictExpression) InsertClauses {
 	ret := ic.clone()
 	ret.conflict = expression
+	return ret
+}
+
+func (dc *insertClauses) Output() ColumnListExpression {
+	return dc.output
+}
+
+func (dc *insertClauses) HasOutput() bool {
+	return dc.output != nil && !dc.output.IsEmpty()
+}
+
+func (dc *insertClauses) SetOutput(cl ColumnListExpression) InsertClauses {
+	ret := dc.clone()
+	ret.output = cl
 	return ret
 }

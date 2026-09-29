@@ -3,10 +3,10 @@ package sqlgen_test
 import (
 	"testing"
 
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/sb"
-	"github.com/doug-martin/goqu/v9/sqlgen"
 	"github.com/stretchr/testify/suite"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/sqlgen"
 )
 
 type (
@@ -458,6 +458,24 @@ func (igs *insertSQLGeneratorSuite) TestGenerate_withReturning() {
 		sqlgen.NewInsertSQLGenerator("test", sqlgen.DefaultDialectOptions()),
 		insertTestCase{clause: ic, sql: `INSERT INTO "test" ("a", "b") VALUES ('a1', 'b1') RETURNING "a", "b"`},
 		insertTestCase{clause: ic, sql: `INSERT INTO "test" ("a", "b") VALUES (?, ?) RETURNING "a", "b"`, isPrepared: true, args: []interface{}{
+			"a1", "b1",
+		}},
+	)
+}
+
+func (igs *insertSQLGeneratorSuite) TestGenerate_withOutput() {
+	ic := exp.NewInsertClauses().
+		SetInto(exp.NewIdentifierExpression("", "test", "")).
+		SetCols(exp.NewColumnListExpression("a", "b")).
+		SetVals([][]interface{}{
+			{"a1", "b1"},
+		}).
+		SetOutput(exp.NewColumnListExpression("a", "b"))
+
+	igs.assertCases(
+		sqlgen.NewInsertSQLGenerator("test", sqlgen.DefaultDialectOptions()),
+		insertTestCase{clause: ic, sql: `INSERT INTO "test" ("a", "b") VALUES ('a1', 'b1') OUTPUT "a", "b"`},
+		insertTestCase{clause: ic, sql: `INSERT INTO "test" ("a", "b") VALUES (?, ?) OUTPUT "a", "b"`, isPrepared: true, args: []interface{}{
 			"a1", "b1",
 		}},
 	)

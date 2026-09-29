@@ -3,10 +3,10 @@ package goqu
 import (
 	"fmt"
 
-	"github.com/doug-martin/goqu/v9/exec"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/tomcrusade/goqu/v9/exec"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/internal/errors"
+	"github.com/tomcrusade/goqu/v9/internal/sb"
 )
 
 type InsertDataset struct {
@@ -183,6 +183,11 @@ func (id *InsertDataset) ClearRows() *InsertDataset {
 // Adds a RETURNING clause to the dataset if the adapter supports it See examples.
 func (id *InsertDataset) Returning(returning ...interface{}) *InsertDataset {
 	return id.copy(id.clauses.SetReturning(exp.NewColumnListExpression(returning...)))
+}
+
+// Adds a OUTPUT clause to the dataset if the adapter supports it See examples.
+func (id *InsertDataset) Output(returning ...interface{}) *InsertDataset {
+	return id.copy(id.clauses.SetOutput(exp.NewColumnListExpression(returning...)))
 }
 
 // Adds an (ON CONFLICT/ON DUPLICATE KEY) clause to the dataset if the dialect supports it. See examples.

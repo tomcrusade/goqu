@@ -1,9 +1,9 @@
 package sqlserver
 
 import (
-	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/sqlgen"
+	"github.com/tomcrusade/goqu/v9"
+	"github.com/tomcrusade/goqu/v9/exp"
+	"github.com/tomcrusade/goqu/v9/sqlgen"
 )
 
 func DialectOptions() *goqu.SQLDialectOptions {
@@ -13,6 +13,7 @@ func DialectOptions() *goqu.SQLDialectOptions {
 	opts.UseLiteralIsBools = false
 
 	opts.SupportsReturn = false
+	opts.SupportsOutput = true
 	opts.SupportsOrderByOnUpdate = false
 	opts.SupportsLimitOnUpdate = false
 	opts.SupportsLimitOnDelete = false
